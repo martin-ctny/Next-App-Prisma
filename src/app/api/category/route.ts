@@ -9,7 +9,7 @@ export async function GET() {
   const posts = await prisma.category.findMany();
   return NextResponse.json({
     status: 200,
-    data: [posts],
+    data: posts,
   });
 }
 

@@ -1,9 +1,9 @@
 "use client";
 
+import UpdateCategory from "@/components/categories/UpdateCategory";
 import UpdatePost from "@/components/posts/UpdatePost";
-import PostsService from "@/service/posts.service";
-import { IPost, IPostForm } from "@/types/index";
-
+import CategoriesService from "@/service/categories.service";
+import { ICategory, ICategoryForm } from "@/types/index";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
@@ -13,30 +13,28 @@ const PostSinglePage = ({
   searchQuery,
 }: {
   params: {
-    postId: string;
+    categoryId: string;
   };
   searchQuery: {
     q: string;
   };
 }) => {
-  const [post, setPost] = useState<IPost | null>(null);
-  const [formValues, setFormValues] = useState<IPostForm>({
-    title: "",
-    content: "",
+  const [category, setCategory] = useState<ICategory | null>(null);
+  const [formValues, setFormValues] = useState<ICategoryForm>({
+    name: "",
   });
 
   useEffect(() => {
-    console.log(params.postId);
-    getOnePost();
+    console.log(params.categoryId);
+    getOneCategory();
   }, [params]);
 
-  const getOnePost = async () => {
+  const getOneCategory = async () => {
     try {
-      const response = await PostsService.GetPost(params.postId);
-      setPost(response.data);
+      const response = await CategoriesService.GetCategory(params.categoryId);
+      setCategory(response.data);
       setFormValues({
-        title: response.data.title,
-        content: response.data.content,
+        name: response.data.name,
       });
 
       console.log(response.data);
@@ -60,33 +58,21 @@ const PostSinglePage = ({
 
   return (
     <div>
-      <h1>Post Single Page {params.postId}</h1>
-      {post && (
+      <h1>Post Single Page {params.categoryId}</h1>
+      {category && (
         <form onSubmit={handleSubmit}>
           <div>
             <TextField
-              label="Title"
+              label="Name"
               variant="outlined"
               fullWidth
-              name="title"
-              value={formValues.title}
+              name="name"
+              value={formValues.name}
               onChange={handleInputChange}
             />
           </div>
           <div>
-            <TextField
-              label="Content"
-              variant="outlined"
-              fullWidth
-              multiline
-              rows={4}
-              name="content"
-              value={formValues.content}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <UpdatePost formValues={formValues} id={params.postId} />
+            <UpdateCategory formValues={formValues} id={params.categoryId} />
           </div>
         </form>
       )}
