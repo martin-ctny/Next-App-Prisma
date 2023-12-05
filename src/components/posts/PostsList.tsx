@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { useRouter } from "next/navigation";
 import DeletePost from "./DeletePost";
+import PostSearchBar from "../common/SearchBar";
 
 const PostListComponent = () => {
   const router = useRouter();
 
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<IPost[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<IPost[]>([]);
 
   useEffect(() => {
     getAllPosts();
@@ -19,8 +21,9 @@ const PostListComponent = () => {
   const getAllPosts = async () => {
     try {
       const response = await PostsService.GetPosts();
-      setPosts(response.data);
-      console.log(response.data);
+      const postData: IPost[] = response.data;
+      setPosts(postData);
+      setFilteredPosts(postData);
     } catch (error) {
       console.log(error);
     }
@@ -34,6 +37,14 @@ const PostListComponent = () => {
   const handleCreate = () => {
     router.push("/posts/create");
   };
+  const handleSearch = (searchTerm: string) => {
+    const filtered = posts.filter(
+      (post) =>
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPosts(filtered);
+  };
 
   return (
     <div>
@@ -41,21 +52,24 @@ const PostListComponent = () => {
       <Button variant="contained" onClick={handleCreate}>
         Creer un Post
       </Button>
+      <PostSearchBar onSearch={handleSearch} />
 
-      {posts.map((post: IPost) => {
-        return (
-          <div key={post.id}>
-            <h3>{post.title}</h3>
-            <p>{post.content}</p>
-            <p>{post.categories?.name || "Aucune catégorie"}</p>
-            <p>{post.body}</p>
-            <Button onClick={() => handleClick(post.id)} variant="contained">
-              Update
-            </Button>
-            <DeletePost id={post.id} getAllPosts={getAllPosts} />
-          </div>
-        );
-      })}
+      {filteredPosts.map((post: IPost) => (
+        <div key={post.id}>
+          {
+            <div key={post.id}>
+              <h3>{post.title}</h3>
+              <p>{post.content}</p>
+              <p>{post.categories?.name || "Aucune catégorie"}</p>
+              <p>{post.body}</p>
+              <Button onClick={() => handleClick(post.id)} variant="contained">
+                Update
+              </Button>
+              <DeletePost id={post.id} getAllPosts={getAllPosts} />
+            </div>
+          }
+        </div>
+      ))}
     </div>
   );
 };
